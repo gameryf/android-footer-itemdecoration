@@ -1,0 +1,53 @@
+public class MyItemDecoration extends RecyclerView.ItemDecoration {
+
+	private View layout;
+	
+	public MyItemDecoration(Context context, RecyclerView parent){
+		layout = LayoutInflater.from(context).inflate(R.layout.item_footer, parent, false);
+	}
+
+	@Override
+	public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+		super.getItemOffsets(outRect, view, parent, state);
+
+		if (parent.getChildAdapterPosition(view) == parent.getAdapter().getItemCount() - 1) {
+			outRect.set( 0, 0, 0, layout.getMeasuredHeight());
+		} else {
+			outRect.setEmpty();
+		}
+
+	}
+
+	@Override
+	public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+		super.onDraw(c, parent, state);
+		
+		fixLayout(layout, parent);
+		
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			
+			View view = parent.getChildAt(i);
+			
+			if (parent.getChildAdapterPosition(view) == parent.getAdapter().getItemCount() - 1) {
+				c.save(); 
+				c.translate(0, view.getBottom());
+				layout.draw(c);
+				c.restore();
+				break;
+			}
+		}
+	}
+	
+	//item footer layout width = match parent and height = its specified
+	private void fixLayout(View view, ViewGroup parent) {
+		
+		int widthSpec = View.MeasureSpec.makeMeasureSpec(parent.getWidth(),View.MeasureSpec.EXACTLY);
+		int heightSpec = View.MeasureSpec.makeMeasureSpec(parent.getHeight(),View.MeasureSpec.UNSPECIFIED);
+		int width = ViewGroup.getChildMeasureSpec(widthSpec, parent.getPaddingLeft() + parent.getPaddingRight(), view.getLayoutParams().width);
+		int height = ViewGroup.getChildMeasureSpec(heightSpec, parent.getPaddingTop() + parent.getPaddingBottom(), view.getLayoutParams().height);
+
+		view.measure(width, height);
+		view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+	   
+	}
+}
